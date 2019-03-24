@@ -1,0 +1,32 @@
+{
+  "name": "app",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "bufferutil": "^4.0.1",
+    "node-libs-browser": "^2.2.0",
+    "react": "16.8.3",
+    "react-native": "0.59.1",
+    "rippled-ws-client": "^1.0.0",
+    "rippled-ws-client-sign": "^0.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.0",
+    "@babel/runtime": "^7.4.2",
+    "@react-native-community/eslint-config": "^0.0.3",
+    "babel-jest": "^24.5.0",
+    "babel-plugin-rewrite-require": "^1.14.5",
+    "eslint": "^5.15.3",
+    "jest": "^24.5.0",
+    "metro-react-native-babel-preset": "^0.53.1",
+    "react-test-renderer": "16.8.3"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
