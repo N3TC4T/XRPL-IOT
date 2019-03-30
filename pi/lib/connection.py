@@ -15,9 +15,9 @@ from .exceptions import ResponseFormatError
 class Connection(Thread):
     def __init__(self, *args, server=None, timeout=None, log_level=None, **kwargs):
         self.socket = None
-        self.server = server if server else 'wss://s.altnet.rippletest.net:51233'
+        self.server = server if server else 'wss://s1.ripple.com'
         self.q = Queue()
-        self.channel_configs = OrderedDict()
+        self.subscribtions = []
 
         # ripple private stuff
         self._ledgerVersion = None
@@ -218,12 +218,17 @@ class Connection(Thread):
         """
 
         if payload:
-            payload = json.dumps(payload)
+            _payload = json.dumps(payload)
         else:
-            payload = json.dumps(kwargs)
+            _payload = json.dumps(kwargs)
+
         self.log.debug("Sending payload to API: %s", payload)
+
         try:
-            self.socket.send(payload)
+            self.socket.send(_payload)
+            # Add to subscribtions if command is subscribe
+            if(payload.get('command', '') == 'subscribe'):
+                self.subscribtions.append(payload)
         except websocket.WebSocketConnectionClosedException:
             self.log.error("Did not send out payload %s - client not connected. ", kwargs)
 
@@ -318,22 +323,12 @@ class Connection(Thread):
         :param soft: if True, unsubscribes first.
         :return: None
         """
-        q_list = []
-        while True:
-            try:
-                identifier, q = self.channel_configs.popitem(last=True if soft else False)
-            except KeyError:
-                break
-            q_list.append((identifier, q.copy()))
-            if soft:
-                q['command'] = 'unsubscribe'
-            self.send(**q)
-
-        # Resubscribe for soft start.
+        # unsubscribe first for soft
         if soft:
-            for identifier, q in reversed(q_list):
-                self.channel_configs[identifier] = q
-                self.send(**q)
-        else:
-            for identifier, q in q_list:
-                self.channel_configs[identifier] = q
+            for s in self.subscribtions:
+                s['command'] = 'unsubscribe'
+                self.send(**s)
+       
+        # subscribe
+        for s in self.subscribtions:
+            self.send(**s)

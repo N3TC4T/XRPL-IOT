@@ -23,7 +23,7 @@ class Iot:
         self.api.connected.wait()
 
         utils.log.info("Send subscription command for account %s..." % (self.address, ))
-        self.api.send(payload={'id': 1002, 'command': 'subscribe', 'accounts': [self.address]})
+        self.api.send(payload={'command': 'subscribe', 'accounts': [self.address]})
 
     def handle(self, tx):
             if(len(tx.get('Memos', [])) > 0):
